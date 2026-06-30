@@ -5,7 +5,7 @@ import { updateRoomBattleStatus } from '@/features/battles/battleRoomSlice';
 import { setSettings } from '@/features/settings/settingsSlice';
 
 let socket: Socket | null = null;
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://ludo-backend-production-72bc.up.railway.app';
 
 export const connectSocket = (token: string): Socket => {
   if (socket?.connected) return socket;
