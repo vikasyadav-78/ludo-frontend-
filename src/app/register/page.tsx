@@ -109,7 +109,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       // 1. Call send OTP endpoint
-      await authService.registerSendOtp(values);
+      const res = await authService.registerSendOtp(values);
 
       // 2. Save values (strictly excluding password) in sessionStorage
       sessionStorage.setItem('reg_name', values.name);
@@ -121,6 +121,11 @@ export default function RegisterPage() {
         sessionStorage.removeItem('reg_referralCode');
       }
 
+      // Check backend response message or settings to determine the provider
+      const provider = (settings.OTP_PROVIDER || 'twilio').toLowerCase();
+      const isEmailProvider = res.message?.toLowerCase().includes('email') || provider === 'email';
+      sessionStorage.setItem('reg_otp_provider', isEmailProvider ? 'email' : 'sms');
+
       // 3. Keep password strictly in memory React state
       setPassword(values.password);
 
@@ -129,9 +134,8 @@ export default function RegisterPage() {
       setResendCooldown(60);
       setStep(2);
       
-      const provider = (settings.OTP_PROVIDER || 'twilio').toLowerCase();
       toast.success(
-        provider === 'email'
+        isEmailProvider
           ? 'Verification OTP sent to your email address!'
           : 'Verification OTP sent to your mobile number!'
       );
@@ -311,7 +315,7 @@ export default function RegisterPage() {
         <>
           <h2 className="text-xl font-extrabold text-white mb-2 text-center">Verify OTP</h2>
           <p className="text-xs text-gray-400 font-semibold text-center mb-6 leading-relaxed">
-            Enter the 6-digit OTP sent to <span className="text-white font-bold">{(settings.OTP_PROVIDER || 'twilio').toLowerCase() === 'email' ? sessionStorage.getItem('reg_email') : sessionStorage.getItem('reg_mobile')}</span>.
+            Enter the 6-digit OTP sent to <span className="text-white font-bold">{sessionStorage.getItem('reg_otp_provider') === 'email' || (settings.OTP_PROVIDER || '').toLowerCase() === 'email' ? sessionStorage.getItem('reg_email') : sessionStorage.getItem('reg_mobile')}</span>.
           </p>
 
           <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
