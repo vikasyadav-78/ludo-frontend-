@@ -128,7 +128,13 @@ export default function RegisterPage() {
       setCountdown(300);
       setResendCooldown(60);
       setStep(2);
-      toast.success('Verification OTP sent successfully!');
+      
+      const provider = (settings.OTP_PROVIDER || 'twilio').toLowerCase();
+      toast.success(
+        provider === 'email'
+          ? 'Verification OTP sent to your email address!'
+          : 'Verification OTP sent to your mobile number!'
+      );
     } catch (err: any) {
       toast.error(err.message || 'Validation/OTP request failed. Please check your inputs.');
     } finally {
@@ -305,7 +311,7 @@ export default function RegisterPage() {
         <>
           <h2 className="text-xl font-extrabold text-white mb-2 text-center">Verify OTP</h2>
           <p className="text-xs text-gray-400 font-semibold text-center mb-6 leading-relaxed">
-            Enter the 6-digit OTP sent to <span className="text-white font-bold">{sessionStorage.getItem('reg_mobile')}</span>.
+            Enter the 6-digit OTP sent to <span className="text-white font-bold">{(settings.OTP_PROVIDER || 'twilio').toLowerCase() === 'email' ? sessionStorage.getItem('reg_email') : sessionStorage.getItem('reg_mobile')}</span>.
           </p>
 
           <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">

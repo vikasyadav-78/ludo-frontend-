@@ -41,7 +41,8 @@ export default function ForgotPasswordPage() {
     try {
       const data = await authService.forgotPassword(values.identifier);
       toast.success(data.message || 'OTP sent successfully!');
-      router.push(`/forgot-password/verify?identifier=${encodeURIComponent(values.identifier)}`);
+      const resolvedIdentifier = data.target || values.identifier;
+      router.push(`/forgot-password/verify?identifier=${encodeURIComponent(resolvedIdentifier)}`);
     } catch (err: any) {
       toast.error(err.message || 'Error occurred. Please try again.');
     } finally {

@@ -17,8 +17,8 @@ export const authService = {
     return response.data.data;
   },
 
-  forgotPassword: async (identifier: string): Promise<{ status: string; method: 'EMAIL' | 'MOBILE'; message?: string; token?: string; otp?: string }> => {
-    const response = await apiClient.post<{ status: string; method: 'EMAIL' | 'MOBILE'; message?: string; token?: string; otp?: string }>('/auth/forgot-password', { identifier });
+  forgotPassword: async (identifier: string): Promise<{ status: string; method: 'EMAIL' | 'MOBILE'; message?: string; token?: string; otp?: string; target?: string }> => {
+    const response = await apiClient.post<{ status: string; method: 'EMAIL' | 'MOBILE'; message?: string; token?: string; otp?: string; target?: string }>('/auth/forgot-password', { identifier });
     return response.data;
   },
 
