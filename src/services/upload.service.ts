@@ -28,11 +28,7 @@ export const uploadService = {
     formData.append('status', status);
     formData.append('screenshot', file);
 
-    const response = await apiClient.post<ApiResponse<any>>('/battles/submit-result', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await apiClient.post<ApiResponse<any>>('/battles/submit-result', formData);
     return response.data;
   },
 
@@ -48,11 +44,7 @@ export const uploadService = {
     formData.append('paymentMethod', paymentMethod);
     formData.append('screenshot', file);
 
-    const response = await apiClient.post<ApiResponse<any>>('/wallets/deposit-request', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await apiClient.post<ApiResponse<any>>('/wallets/deposit-request', formData);
     return response.data;
   },
 };

@@ -23,7 +23,9 @@ const createBattleSchema = z.object({
     (val) => (val === '' ? undefined : Number(val)),
     z.number({ required_error: 'Amount is required' }).positive('Amount must be greater than 0')
   ),
-  inviteCode: z.string().optional(),
+  inviteCode: z.string().optional().refine((val) => !val || /^\d{8}$/.test(val), {
+    message: 'Invite code must be exactly 8 digits',
+  }),
 });
 
 type CreateBattleValues = z.infer<typeof createBattleSchema>;
@@ -121,9 +123,14 @@ export default function CreateBattlePage() {
 
             <Input
               label="Invite Code (Optional)"
-              placeholder="e.g. LK123456"
+              placeholder="e.g. 12345678"
+              maxLength={8}
               error={errors.inviteCode?.message}
               {...register('inviteCode')}
+              onChange={(e) => {
+                e.target.value = e.target.value.replace(/\D/g, '');
+                register('inviteCode').onChange(e);
+              }}
             />
 
             <div className="border-t border-white/5 pt-4 flex flex-col gap-3">

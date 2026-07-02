@@ -10,12 +10,7 @@ export const walletService = {
   createDepositRequest: async (formData: FormData): Promise<DepositRequest> => {
     const response = await apiClient.post<ApiResponse<{ deposit: DepositRequest }>>(
       '/wallets/deposit-request',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
     return response.data.data.deposit;
   },

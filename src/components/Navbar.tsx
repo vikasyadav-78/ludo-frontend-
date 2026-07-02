@@ -7,6 +7,7 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { setNotifications, markRead, markAllRead } from '@/features/notifications/notificationsSlice';
 import notificationService from '@/services/notification.service';
 import { formatCurrency, formatDate, cn } from '@/utils';
+import DefaultAvatar from '@/components/DefaultAvatar';
 
 interface NavbarProps {
   onMenuTrigger: () => void;
@@ -174,7 +175,7 @@ export default function Navbar({ onMenuTrigger }: NavbarProps) {
             {user?.avatar ? (
               <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
             ) : (
-              user?.name?.charAt(0).toUpperCase() || <User size={14} />
+              <DefaultAvatar />
             )}
           </div>
           <span className="hidden sm:block text-xs font-bold text-gray-300">

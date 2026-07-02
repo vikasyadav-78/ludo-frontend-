@@ -146,6 +146,10 @@ export default function BattleRoomPage() {
       toast.error('Invite code cannot be empty.');
       return;
     }
+    if (!/^\d{8}$/.test(newInviteCode.trim())) {
+      toast.error('Invite code must be exactly 8 digits.');
+      return;
+    }
     setSettingInviteCode(true);
     try {
       const updated = await battleService.setInviteCode(id, newInviteCode);
@@ -389,12 +393,36 @@ export default function BattleRoomPage() {
               <p className="text-xs text-gray-400 leading-relaxed font-semibold">
                 Share this lobby invite code with an opponent to start a private challenge match.
               </p>
-              <div className="bg-gameCard/80 p-3 rounded-lg border border-white/5 flex items-center justify-between text-sm font-mono text-white select-all">
-                <span>{battle.inviteCode || 'N/A'}</span>
-                <button onClick={handleCopyInviteCode}>
-                  <Share2 size={14} className="text-gray-500 hover:text-white" />
-                </button>
-              </div>
+              {battle.inviteCode ? (
+                <div className="bg-gameCard/80 p-3 rounded-lg border border-white/5 flex items-center justify-between text-sm font-mono text-white select-all">
+                  <span>{battle.inviteCode}</span>
+                  <button onClick={handleCopyInviteCode}>
+                    <Share2 size={14} className="text-gray-500 hover:text-white" />
+                  </button>
+                </div>
+              ) : (
+                isCreator ? (
+                  <form onSubmit={handleInviteCodeSubmit} className="flex flex-col gap-2 mt-1">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        maxLength={8}
+                        value={newInviteCode}
+                        onChange={(e) => setNewInviteCode(e.target.value.replace(/\D/g, ''))}
+                        placeholder="e.g. 12345678"
+                        className="flex-1 px-3 py-1.5 bg-white/[0.02] border border-white/5 rounded-lg text-white placeholder-gray-500 outline-none text-xs focus:border-gameAccent/50 transition-colors"
+                      />
+                      <Button type="submit" variant="primary" isLoading={settingInviteCode} className="text-[10px] font-bold px-3 py-1.5 uppercase tracking-wider">
+                        Submit
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="bg-gameCard/80 p-3 rounded-lg border border-white/5 text-[11px] text-yellow-400 font-semibold italic text-center select-none animate-pulse">
+                    Waiting for host to set room code...
+                  </div>
+                )
+              )}
 
               {isCreator && (
                 <Button variant="danger" onClick={handleCancel} className="text-xs font-bold uppercase w-full mt-2">
@@ -448,9 +476,10 @@ export default function BattleRoomPage() {
                         <div className="flex gap-2">
                           <input
                             type="text"
+                            maxLength={8}
                             value={newInviteCode}
-                            onChange={(e) => setNewInviteCode(e.target.value)}
-                            placeholder="Enter room invite code..."
+                            onChange={(e) => setNewInviteCode(e.target.value.replace(/\D/g, ''))}
+                            placeholder="e.g. 12345678"
                             className="flex-1 px-3 py-1.5 bg-white/[0.02] border border-white/5 rounded-lg text-white placeholder-gray-500 outline-none text-xs focus:border-gameAccent/50 transition-colors"
                           />
                           <Button type="submit" variant="primary" isLoading={settingInviteCode} className="text-[10px] font-bold px-3 py-1.5 uppercase tracking-wider">

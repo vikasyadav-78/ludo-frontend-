@@ -3,7 +3,7 @@ import { store } from '@/store/store';
 import { logout, setCredentials } from '@/features/auth/authSlice';
 import { ApiResponse } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ludo-backend-production-72bc.up.railway.app/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_URL,

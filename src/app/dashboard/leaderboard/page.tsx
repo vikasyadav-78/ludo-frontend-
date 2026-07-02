@@ -6,6 +6,7 @@ import Card from '@/components/Card';
 import Table from '@/components/Table';
 import { formatCurrency } from '@/utils';
 import profileService from '@/services/profile.service';
+import DefaultAvatar from '@/components/DefaultAvatar';
 
 interface LeaderboardUser {
   rank: number;
@@ -117,8 +118,8 @@ export default function LeaderboardPage() {
                     {row.avatar ? (
                       <img src={row.avatar} alt="" className="w-6 h-6 rounded-full object-cover" />
                     ) : (
-                      <div className="w-6 h-6 rounded-full bg-gameAccent/20 flex items-center justify-center text-[10px] text-gameAccent font-bold">
-                        {row.name.charAt(0).toUpperCase()}
+                      <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center border border-white/10">
+                        <DefaultAvatar />
                       </div>
                     )}
                     <span>{row.name}</span>
@@ -148,8 +149,8 @@ export default function LeaderboardPage() {
                     {row.avatar ? (
                       <img src={row.avatar} alt="" className="w-6 h-6 rounded-full object-cover" />
                     ) : (
-                      <div className="w-6 h-6 rounded-full bg-gameAccent/20 flex items-center justify-center text-[10px] text-gameAccent font-bold">
-                        {row.name.charAt(0).toUpperCase()}
+                      <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center border border-white/10">
+                        <DefaultAvatar />
                       </div>
                     )}
                     <span>{row.name}</span>

@@ -62,6 +62,7 @@ export interface Wallet {
   depositBalance: number;
   winningBalance: number;
   bonusBalance: number;
+  lifetimeBonus: number;
   totalBalance: number;
 }
 

@@ -26,6 +26,16 @@ export const profileService = {
     return response.data.data;
   },
 
+  verifySendOtp: async (type: 'email' | 'mobile'): Promise<{ status: string; message: string; target: string }> => {
+    const response = await apiClient.post<{ status: string; message: string; target: string }>('/users/verify-send-otp', { type });
+    return response.data;
+  },
+
+  verifyOtp: async (type: 'email' | 'mobile', otp: string): Promise<{ user: User }> => {
+    const response = await apiClient.post<ApiResponse<{ user: User }>>('/users/verify-otp', { type, otp });
+    return response.data.data;
+  },
+
   getLeaderboard: async (): Promise<{
     topWinners: Array<{ rank: number; name: string; avatar: string; winnings: number; wins: number }>;
     topReferrers: Array<{ rank: number; name: string; avatar: string; referralsCount: number; bonusEarned: number }>;

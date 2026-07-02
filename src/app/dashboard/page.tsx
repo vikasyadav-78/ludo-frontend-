@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Gamepad2, Wallet, Plus, ArrowRight, Trophy, Sparkles, TrendingUp } from 'lucide-react';
+import { Gamepad2, Wallet, Plus, ArrowRight, Trophy, Sparkles, TrendingUp, Award } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setOpenBattles, setBattlesLoading } from '@/features/battles/battlesSlice';
 import battleService from '@/services/battle.service';
@@ -16,7 +16,7 @@ import { formatCurrency, cn } from '@/utils';
 export default function UserDashboardPage() {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const { depositBalance, winningBalance, bonusBalance } = useAppSelector((state) => state.wallet);
+  const { depositBalance, winningBalance, bonusBalance, lifetimeBonus, totalBalance } = useAppSelector((state) => state.wallet);
   const { openBattles, loading, error } = useAppSelector((state) => state.battles);
 
   const [history, setHistory] = useState<any[]>([]);
@@ -92,11 +92,21 @@ export default function UserDashboardPage() {
         </div>
       </div>
 
-      {/* Wallet Balance Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Overview cards stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="flex items-center justify-between" glow>
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Winnings Balance</span>
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Balance</span>
+            <span className="text-2xl font-black text-white">{formatCurrency(totalBalance)}</span>
+          </div>
+          <div className="p-3 bg-gameAccent/10 rounded-xl text-gameAccent">
+            <Wallet size={20} />
+          </div>
+        </Card>
+
+        <Card className="flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Winning Balance</span>
             <span className="text-2xl font-black text-white">{formatCurrency(winningBalance)}</span>
           </div>
           <div className="p-3 bg-gameAccent/10 rounded-xl text-gameAccent">
@@ -116,11 +126,11 @@ export default function UserDashboardPage() {
 
         <Card className="flex items-center justify-between">
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Bonus Balance</span>
-            <span className="text-2xl font-black text-white">{formatCurrency(bonusBalance)}</span>
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Bonus (Lifetime)</span>
+            <span className="text-2xl font-black text-white">{formatCurrency(lifetimeBonus)}</span>
           </div>
           <div className="p-3 bg-gameGold/10 rounded-xl text-gameGold">
-            <Wallet size={20} />
+            <Award size={20} />
           </div>
         </Card>
       </div>

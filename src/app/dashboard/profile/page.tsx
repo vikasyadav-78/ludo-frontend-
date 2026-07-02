@@ -13,6 +13,7 @@ import authService from '@/services/auth.service';
 import Card from '@/components/Card';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
+import DefaultAvatar from '@/components/DefaultAvatar';
 
 // Validation Schemas
 const profileSchema = z.object({
@@ -38,6 +39,53 @@ export default function UserProfileSettingsPage() {
 
   const [loading, setLoading] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
+
+  // Verification states
+  const [verificationField, setVerificationField] = useState<'email' | 'mobile' | null>(null);
+  const [verificationStep, setVerificationStep] = useState<1 | 2>(1);
+  const [otpCode, setOtpCode] = useState('');
+  const [verificationLoading, setVerificationLoading] = useState(false);
+
+  const startVerification = (field: 'email' | 'mobile') => {
+    setVerificationField(field);
+    setVerificationStep(1);
+    setOtpCode('');
+  };
+
+  const cancelVerification = () => {
+    setVerificationField(null);
+    setVerificationStep(1);
+    setOtpCode('');
+  };
+
+  const sendVerificationOtp = async () => {
+    if (!verificationField) return;
+    setVerificationLoading(true);
+    try {
+      const res = await profileService.verifySendOtp(verificationField);
+      toast.success(res.message || 'OTP sent successfully!');
+      setVerificationStep(2);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send verification OTP.');
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
+  const submitVerificationOtp = async () => {
+    if (!verificationField || !otpCode) return;
+    setVerificationLoading(true);
+    try {
+      const data = await profileService.verifyOtp(verificationField, otpCode);
+      dispatch(updateUser(data.user));
+      toast.success(`${verificationField === 'email' ? 'Email' : 'Mobile'} verified successfully!`);
+      setVerificationField(null);
+    } catch (err: any) {
+      toast.error(err.message || 'OTP verification failed.');
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
 
   // Forms registration
   const { register: regProf, handleSubmit: subProf, formState: { errors: errProf } } = useForm<ProfileValues>({
@@ -136,13 +184,9 @@ export default function UserProfileSettingsPage() {
                 ) : user?.avatar ? (
                   <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  user?.name?.charAt(0).toUpperCase()
+                  <DefaultAvatar className="w-full h-full" />
                 )}
               </div>
-              <label className="absolute bottom-0 right-0 p-2 bg-gameCard border border-white/10 hover:border-gameAccent/50 rounded-full cursor-pointer text-gray-400 hover:text-white transition-all duration-200">
-                <Camera size={14} />
-                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-              </label>
             </div>
 
             <div>
@@ -157,20 +201,94 @@ export default function UserProfileSettingsPage() {
               </div>
               <div className="flex justify-between items-center">
                 <span>Mobile Status:</span>
-                <span className={user?.mobileVerified ? "text-green-400 flex items-center gap-1 font-bold" : "text-amber-500 flex items-center gap-1 font-bold"}>
-                  <ShieldCheck size={12} />
-                  <span>{user?.mobileVerified ? 'Verified' : 'Unverified'}</span>
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className={user?.mobileVerified ? "text-green-400 flex items-center gap-1 font-bold" : "text-amber-500 flex items-center gap-1 font-bold"}>
+                    <ShieldCheck size={12} />
+                    <span>{user?.mobileVerified ? 'Verified' : 'Unverified'}</span>
+                  </span>
+                  {!user?.mobileVerified && (
+                    <button
+                      onClick={() => startVerification('mobile')}
+                      className="text-[10px] text-gameAccent hover:underline font-bold focus:outline-none"
+                    >
+                      (Verify)
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="flex justify-between items-center">
                 <span>Email Status:</span>
-                <span className={user?.emailVerified ? "text-green-400 flex items-center gap-1 font-bold" : "text-amber-500 flex items-center gap-1 font-bold"}>
-                  <ShieldCheck size={12} />
-                  <span>{user?.emailVerified ? 'Verified' : 'Unverified'}</span>
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className={user?.emailVerified ? "text-green-400 flex items-center gap-1 font-bold" : "text-amber-500 flex items-center gap-1 font-bold"}>
+                    <ShieldCheck size={12} />
+                    <span>{user?.emailVerified ? 'Verified' : 'Unverified'}</span>
+                  </span>
+                  {!user?.emailVerified && (
+                    <button
+                      onClick={() => startVerification('email')}
+                      className="text-[10px] text-gameAccent hover:underline font-bold focus:outline-none"
+                    >
+                      (Verify)
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </Card>
+
+          {verificationField && (
+            <Card className="p-4 flex flex-col gap-4 border border-gameAccent/20">
+              <div className="flex justify-between items-center border-b border-white/5 pb-1.5">
+                <h4 className="text-xs font-black text-white uppercase tracking-wider">
+                  Verify {verificationField === 'email' ? 'Email' : 'Mobile Number'}
+                </h4>
+                <button
+                  onClick={cancelVerification}
+                  className="text-xs text-gray-500 hover:text-white font-semibold focus:outline-none"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              {verificationStep === 1 ? (
+                <div className="flex flex-col gap-2.5">
+                  <p className="text-[11px] text-gray-400 font-semibold leading-relaxed">
+                    We will send a 6-digit OTP code to verify your {verificationField === 'email' ? 'email' : 'mobile'}.
+                  </p>
+                  <Button
+                    onClick={sendVerificationOtp}
+                    variant="primary"
+                    isLoading={verificationLoading}
+                    className="w-full py-1 text-xs uppercase"
+                  >
+                    Send Verification OTP
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2.5">
+                  <p className="text-[11px] text-gray-400 font-semibold leading-relaxed">
+                    Enter the 6-digit OTP code below:
+                  </p>
+                  <input
+                    type="text"
+                    placeholder="6-digit OTP"
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                    className="w-full px-3 py-1.5 bg-gameCard/50 border border-white/5 rounded text-xs text-white text-center font-bold tracking-widest focus:outline-none focus:border-gameAccent/50"
+                  />
+                  <Button
+                    onClick={submitVerificationOtp}
+                    variant="primary"
+                    isLoading={verificationLoading}
+                    className="w-full py-1 text-xs uppercase"
+                  >
+                    Confirm Code
+                  </Button>
+                </div>
+              )}
+            </Card>
+          )}
         </div>
 
         {/* Right columns - Forms */}

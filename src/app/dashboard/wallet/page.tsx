@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
-import { Wallet, Plus, ArrowUpRight, FileSpreadsheet, RefreshCw } from 'lucide-react';
+import { Wallet, Plus, ArrowUpRight, FileSpreadsheet, RefreshCw, Award } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { setWalletBalances } from '@/features/wallet/walletSlice';
 import walletService from '@/services/wallet.service';
@@ -46,7 +46,7 @@ const loadRazorpayScript = (): Promise<boolean> => {
 export default function WalletDashboardPage() {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const { depositBalance, winningBalance, bonusBalance } = useAppSelector((state) => state.wallet);
+  const { depositBalance, winningBalance, bonusBalance, totalBalance, lifetimeBonus } = useAppSelector((state) => state.wallet);
 
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -146,7 +146,7 @@ export default function WalletDashboardPage() {
       };
 
       const rzp = new (window as any).Razorpay(options);
-      
+
       rzp.on('payment.failed', function (resp: any) {
         toast.error(resp.error.description || 'Payment transaction failed.');
         setSubmitLoading(false);
@@ -228,11 +228,11 @@ export default function WalletDashboardPage() {
 
         <Card className="flex items-center justify-between">
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Bonus Wallet</span>
-            <span className="text-2xl font-black text-white">{formatCurrency(bonusBalance)}</span>
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Bonus (Lifetime)</span>
+            <span className="text-2xl font-black text-white">{formatCurrency(lifetimeBonus)}</span>
           </div>
           <div className="p-3 bg-gameGold/10 rounded-xl text-gameGold">
-            <Wallet size={20} />
+            <Award size={20} />
           </div>
         </Card>
       </div>
@@ -252,38 +252,44 @@ export default function WalletDashboardPage() {
               data={transactions}
               columns={[
                 { header: 'Date', accessor: (row) => formatDate(row.createdAt) },
-                { header: 'Type', accessor: (row) => (
-                  <span className={cn(
-                    'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase',
-                    row.type === 'DEPOSIT' && 'bg-green-500/20 text-green-400',
-                    row.type === 'WITHDRAW' && 'bg-red-500/20 text-red-400',
-                    row.type === 'BATTLE_ENTRY' && 'bg-gamePurple/20 text-gamePurple',
-                    row.type === 'BATTLE_WIN' && 'bg-gameAccent/20 text-gameAccent'
-                  )}>
-                    {row.type}
-                  </span>
-                )},
-                { header: 'Amount', accessor: (row) => (
-                  <span className={cn(
-                    'font-bold',
-                    ['DEPOSIT', 'BATTLE_WIN', 'BATTLE_REFUND', 'REFERRAL_BONUS', 'ADMIN_CREDIT'].includes(row.type)
-                      ? 'text-green-400'
-                      : 'text-red-400'
-                  )}>
-                    {['DEPOSIT', 'BATTLE_WIN', 'BATTLE_REFUND', 'REFERRAL_BONUS', 'ADMIN_CREDIT'].includes(row.type) ? '+' : '-'}
-                    {formatCurrency(row.amount)}
-                  </span>
-                )},
-                { header: 'Status', accessor: (row) => (
-                  <span className={cn(
-                    'text-[9px] font-black tracking-wider px-2 py-0.5 rounded uppercase',
-                    row.status === 'SUCCESS' && 'bg-green-500/20 text-green-400',
-                    row.status === 'PENDING' && 'bg-gameGold/20 text-gameGold',
-                    row.status === 'FAILED' && 'bg-red-500/20 text-red-400'
-                  )}>
-                    {row.status}
-                  </span>
-                )},
+                {
+                  header: 'Type', accessor: (row) => (
+                    <span className={cn(
+                      'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase',
+                      row.type === 'DEPOSIT' && 'bg-green-500/20 text-green-400',
+                      row.type === 'WITHDRAW' && 'bg-red-500/20 text-red-400',
+                      row.type === 'BATTLE_ENTRY' && 'bg-gamePurple/20 text-gamePurple',
+                      row.type === 'BATTLE_WIN' && 'bg-gameAccent/20 text-gameAccent'
+                    )}>
+                      {row.type}
+                    </span>
+                  )
+                },
+                {
+                  header: 'Amount', accessor: (row) => (
+                    <span className={cn(
+                      'font-bold',
+                      ['DEPOSIT', 'BATTLE_WIN', 'BATTLE_REFUND', 'REFERRAL_BONUS', 'ADMIN_CREDIT'].includes(row.type)
+                        ? 'text-green-400'
+                        : 'text-red-400'
+                    )}>
+                      {['DEPOSIT', 'BATTLE_WIN', 'BATTLE_REFUND', 'REFERRAL_BONUS', 'ADMIN_CREDIT'].includes(row.type) ? '+' : '-'}
+                      {formatCurrency(row.amount)}
+                    </span>
+                  )
+                },
+                {
+                  header: 'Status', accessor: (row) => (
+                    <span className={cn(
+                      'text-[9px] font-black tracking-wider px-2 py-0.5 rounded uppercase',
+                      row.status === 'SUCCESS' && 'bg-green-500/20 text-green-400',
+                      row.status === 'PENDING' && 'bg-gameGold/20 text-gameGold',
+                      row.status === 'FAILED' && 'bg-red-500/20 text-red-400'
+                    )}>
+                      {row.status}
+                    </span>
+                  )
+                },
                 { header: 'Payment ID', accessor: (row) => row.razorpayPaymentId || 'N/A' },
                 { header: 'Description', accessor: 'description' },
               ]}
