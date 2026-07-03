@@ -3,9 +3,10 @@ import { store } from '@/store/store';
 import { addNotification } from '@/features/notifications/notificationsSlice';
 import { updateRoomBattleStatus } from '@/features/battles/battleRoomSlice';
 import { setSettings } from '@/features/settings/settingsSlice';
+import { env } from '@/config/env';
 
 let socket: Socket | null = null;
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://ludo-backend-production-72bc.up.railway.app';
+const SOCKET_URL = env.SOCKET_URL;
 
 export const connectSocket = (token: string): Socket => {
   if (socket?.connected) return socket;

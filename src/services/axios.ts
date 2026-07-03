@@ -3,7 +3,9 @@ import { store } from '@/store/store';
 import { logout, setCredentials } from '@/features/auth/authSlice';
 import { ApiResponse } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+import { env } from '@/config/env';
+
+const API_URL = env.API_URL;
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_URL,
