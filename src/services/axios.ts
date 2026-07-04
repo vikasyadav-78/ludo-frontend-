@@ -23,6 +23,10 @@ interface FailedRequest {
 // Request Interceptor: Inject JWT token from Redux state
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    console.log("==================================");
+    console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
+    console.log("SOCKET URL:", process.env.NEXT_PUBLIC_SOCKET_URL);
+    console.log("==================================");
     const token = store.getState().auth.token;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
